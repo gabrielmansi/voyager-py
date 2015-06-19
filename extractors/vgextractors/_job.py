@@ -59,6 +59,9 @@ class Job:
         else:
             self.description = "id:%s" % self.id
 
+        if not 'geo' in props:
+            self.geo = VgDexField.GEO
+
 
     def __str__(self):
         return "Job %s: %s" % (self.id, self.description)
