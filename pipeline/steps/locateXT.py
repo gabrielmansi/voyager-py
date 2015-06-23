@@ -30,9 +30,9 @@ def run(entry):
         command = 'C:/Program Files (x86)/ClearTerra/License Server/LocateXT_API_CLI32.exe -t "{0}"'.format(''.join(text_field))
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=134217728)
         process.wait()
-        if process.returncode == 1:
+        if process.returncode in (1, -1):
             sys.stderr.write('FAILED. {0}'.format(process.stderr.read()))
-            return
+            return new_entry
         columns = defaultdict(list)
         reader = csv.DictReader(process.stdout.read().splitlines())
         for row in reader:
