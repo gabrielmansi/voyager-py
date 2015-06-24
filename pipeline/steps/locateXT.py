@@ -23,16 +23,23 @@ def run(entry):
     """Extracts coordinates from the given entry and returns a new entry with coordinate information.
     :param entry: a file containing the entry information
     """
-    orig_entry = json.load(open(entry, 'r'))
+    orig_entry = json.load(open(entry, "rb"))
     new_entry = deepcopy(orig_entry)
     if 'fields' in orig_entry and 'text' in orig_entry['fields']:
         text_field = orig_entry['fields']['text']
-        command = 'C:/Program Files (x86)/ClearTerra/License Server/LocateXT_API_CLI32.exe -t "{0}"'.format(''.join(text_field))
+        try:
+            command = 'C:/Program Files (x86)/ClearTerra/License Server/LocateXT_API_CLI32.exe -t "{0}"'.format(''.join(text_field))
+        except UnicodeEncodeError:
+            command = 'C:/Program Files (x86)/ClearTerra/License Server/LocateXT_API_CLI32.exe -t "{0}"'.format(text_field.encode(orig_entry['fields']['contentEncoding']))
         process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=134217728)
         process.wait()
         if process.returncode in (1, -1):
-            sys.stderr.write('FAILED. {0}'.format(process.stderr.read()))
-            return new_entry
+            command = 'C:/Program Files (x86)/ClearTerra/License Server/LocateXT_API_CLI32.exe "{0}"'.format(entry)
+            process = subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, creationflags=134217728)
+            process.wait()
+            if process.returncode in (1, -1):
+                sys.stderr.write('FAILED. {0}'.format(process.stderr.read()))
+                return new_entry
         columns = defaultdict(list)
         reader = csv.DictReader(process.stdout.read().splitlines())
         for row in reader:
@@ -48,7 +55,6 @@ def run(entry):
             wkt_multipoint = 'MULTIPOINT ({0})'.format(', '.join(points))
             geo = {}
             geo['wkt'] = wkt_multipoint
-            new_entry['fields']['wkt'] = wkt_multipoint
             new_entry['geo'] = geo
         else:
             # Make single point.
@@ -58,7 +64,7 @@ def run(entry):
             new_entry['geo'] = geo
 
         new_entry['fields']['fs_processed_by'] = 'LocateXT'
-        sys.stdout.write(json.dumps(new_entry, ensure_ascii=False))
+        sys.stdout.write(json.dumps(new_entry, ensure_ascii=True))
         sys.stdout.flush()
     else:
         sys.stderr.write("No text to process for: {0}".format(orig_entry['fields']['id']))
