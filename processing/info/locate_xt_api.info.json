@@ -28,7 +28,7 @@
       "type": "Integer",
       "name": "fuzzy_error",
       "value": 0,
-      "min": 1,
+      "min": 0,
       "max": 30
     },
     {
