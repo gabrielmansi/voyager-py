@@ -35,6 +35,9 @@ def execute(request):
     parameters = request['params']
 
     output_type = task_utils.get_parameter_value(parameters, 'output_format', 'value')
+    gaz_file = task_utils.get_parameter_value(parameters, 'gazeteer_file', 'value')
+    fuzzy_error = task_utils.get_parameter_value(parameters, 'fuzzy_error', 'value')
+    attributes_file = task_utils.get_parameter_value(parameters, 'attributes_file', 'value')
     task_folder = os.path.join(request['folder'], 'temp')
     if not os.path.exists(task_folder):
         os.makedirs(task_folder)
@@ -62,14 +65,14 @@ def execute(request):
                 results = urllib2.urlopen(query + '{0}&ids={1}'.format(fl, ','.join(group)))
 
             input_items = task_utils.get_input_items(eval(results.read())['response']['docs'])
-            result = extract(input_items, output_type)
+            result = extract(input_items, output_type, task_folder, gaz_file, fuzzy_error, attributes_file)
             extracted += result[0]
             errors += result[1]
             skipped += result[2]
             status_writer.send_percent(i / num_results, '{0}: {1:%}'.format("Processed", i / num_results), 'locate_xt_api')
     else:
         input_items = task_utils.get_input_items(parameters[response_index]['response']['docs'])
-        converted, errors, skipped = extract(input_items, output_type, task_folder, show_progress=True)
+        converted, errors, skipped = extract(input_items, output_type, task_folder, gaz_file, fuzzy_error, attributes_file,  True)
 
     try:
         shutil.copy2(os.path.join(os.path.dirname(os.path.dirname(__file__)), 'supportfiles', '_thumb.png'), task_folder)
