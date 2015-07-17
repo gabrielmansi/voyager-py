@@ -1,7 +1,7 @@
 {
   "name": "locate_xt_api",
   "runner": "python",
-  "categories": ["download"],
+  "categories": ["Extracting Data"],
   "group": "Managing Data and Files",
   "params": [
     {
