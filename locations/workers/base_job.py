@@ -265,6 +265,15 @@ class Job(object):
             return ''
 
     @property
+    def alex_worker_info(self):
+        """Alex Worker test"""
+        if 'alex_worker' in self.job['location']['config']:
+            return self.job['location']['config']['alex_worker']
+        else:
+            return ''
+
+
+    @property
     def url(self):
         """URL for GDAL/OGR dataset."""
         try:

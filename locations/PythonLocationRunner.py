@@ -20,7 +20,7 @@ import workers
 modules = {'arcpy': 'esri_worker', 'cx_Oracle': 'oracle_worker',
            'pyodbc': 'sql_worker', 'pyodbc': 'mysql_worker',
            'boto3': 'dynamodb_worker', 'pymongo': 'mongodb_worker',
-           'ogr': 'gdal_worker'}
+           'ogr': 'gdal_worker', 'alex_worker': 'alex_worker'}
 
 
 if __name__ == '__main__':
@@ -66,6 +66,9 @@ if __name__ == '__main__':
             elif 'MySQL' in job.sql_driver:
                 from workers import mysql_worker
                 mysql_worker.run_job(job)
+        elif job.alex_worker_info:
+            from workers import alex_worker
+            alex_worker.run_job(job)
         else:
             sys.stdout.write("No job information.")
             sys.exit(1)
